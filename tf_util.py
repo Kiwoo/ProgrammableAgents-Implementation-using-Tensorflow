@@ -22,7 +22,75 @@ random.seed(seed)
 np.random.seed(seed)
 tf.set_random_seed(seed)
 
+def explained_variance_1d(ypred,y):
+    """
+    Var[ypred - y] / var[y]. 
+    https://www.quora.com/What-is-the-meaning-proportion-of-variance-explained-in-linear-regression
+    """
+    assert y.ndim == 1 and ypred.ndim == 1    
+    vary = np.var(y)
+    return np.nan if vary==0 else 1 - np.var(y-ypred)/vary
 
+def pathlength(path):
+    return len(path["reward"])
+
+class LinearValueFunction(object):
+    coef = None
+    def fit(self, X, y):
+        Xp = self.preproc(X)
+        A = Xp.T.dot(Xp)
+        nfeats = Xp.shape[1]
+        A[np.arange(nfeats), np.arange(nfeats)] += 1e-3 # a little ridge regression
+        b = Xp.T.dot(y)
+        self.coef = np.linalg.solve(A, b)
+    def predict(self, X):
+        if self.coef is None:
+            return np.zeros(X.shape[0])
+        else:
+            return self.preproc(X).dot(self.coef)
+    def preproc(self, X):
+        return np.concatenate([np.ones([X.shape[0], 1]), X, np.square(X)/2.0], axis=1)
+
+class NnValueFunction(object):
+
+    def __init__(self):
+        self.net = None
+
+    def create_net(self, shape):
+        print "Creat Net"
+        self.x = tf.placeholder(shape=[None, shape], name="x", dtype=tf.float32)
+        self.y = tf.placeholder(shape=[None], name="y", dtype=tf.float32)
+
+        out = layers.fully_connected(self.x, num_outputs=5, activation_fn=tf.nn.relu, weights_initializer=tf.contrib.layers.xavier_initializer())
+        out = layers.fully_connected(out, num_outputs=3, activation_fn=tf.nn.relu, weights_initializer=tf.contrib.layers.xavier_initializer())
+        self.net = layers.fully_connected(out, num_outputs=1, activation_fn=None, weights_initializer=tf.contrib.layers.xavier_initializer())
+        self.net = tf.reshape(self.net, (-1, ))
+        l2 = (self.net - self.y) * (self.net - self.y)
+        self.train = tf.train.AdamOptimizer(1e-4).minimize(l2)
+        tf.global_variables_initializer().run()
+
+    def _features(self, path):
+        o = path["observation"]
+        o = path["observation"].astype('float32')
+        o = o.reshape(o.shape[0], -1)
+        l = len(path["reward"])
+        ret = np.concatenate([o, o**2, np.ones((l, 1))], axis=1)
+        return ret
+
+    def fit(self, paths):
+        featmat = np.concatenate([self._features(path) for path in paths])
+        if self.net is None:
+            self.create_net(featmat.shape[1])
+        returns = np.concatenate([path["returns"] for path in paths])
+        for _ in range(1000):
+            get_session().run(self.train, {self.x: featmat, self.y: returns})
+
+    def predict(self, path):
+        if self.net is None:
+            return np.zeros(len(path["reward"])) 
+        else:
+            ret = get_session().run(self.net, {self.x: self._features(path)})
+            return np.reshape(ret, (ret.shape[0], ))
 
 
 def discount(x, gamma):
