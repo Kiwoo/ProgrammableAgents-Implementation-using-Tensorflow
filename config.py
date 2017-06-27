@@ -1,5 +1,8 @@
 #-*- coding: utf-8 -*-
+
 import argparse
+
+# Get modified from https://github.com/carpedm20/BEGAN-tensorflow
 
 def str2bool(v):
     return v.lower() in ('true', '1')
@@ -60,9 +63,4 @@ misc_arg.add_argument('--random_seed', type=int, default=123)
 
 def get_config():
     config, unparsed = parser.parse_known_args()
-    if config.use_gpu:
-        data_format = 'NCHW'
-    else:
-        data_format = 'NHWC'
-    setattr(config, 'data_format', data_format)
     return config, unparsed

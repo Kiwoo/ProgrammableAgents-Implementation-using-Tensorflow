@@ -9,7 +9,7 @@ from tf_util import *
 
 
 def main(): 
-    env = gym.make("Hopper-v1")
+    env = gym.make("Reacher-v1")
 
     ob_dim = env.observation_space.shape[0]
     num_actions = np.prod(env.action_space.shape)
