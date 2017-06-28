@@ -1,11 +1,11 @@
 import argparse
 import gym
-from gym import wrappers
+# from gym import wrappers
 import os.path as osp
 import random
 import numpy as np
-import tensorflow as tf
-import tensorflow.contrib.layers as layers
+# import tensorflow as tf
+# import tensorflow.contrib.layers as layers
 
 import dqn
 from dqn_utils import *
@@ -118,16 +118,18 @@ def get_env(task, seed):
 
 def main():
     # Get Atari games.
-    benchmark = gym.benchmark_spec('Atari40M')
+    # benchmark = gym.benchmark_spec('Reacher-v3')
 
-    # Change the index to select a different game.
-    task = benchmark.tasks[3]
+    # task = benchmark.tasks[3]
 
-    # Run training
-    seed = 0 # Use a seed of zero (you may want to randomize the seed!)
-    env = get_env(task, seed)
-    session = get_session()
-    atari_learn(env, session, num_timesteps=task.max_timesteps)
+    # seed = 0 
+    # env = get_env(task, seed)
+    # session = get_session()
+    # atari_learn(env, session, num_timesteps=task.max_timesteps)
+
+    env = gym.make("CartPole-v0")
+    env.reset()
+    env.render()
 
 if __name__ == "__main__":
     main()

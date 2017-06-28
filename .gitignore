@@ -3,5 +3,6 @@
 *.mp4
 *.log
 *.p
+*.TXT
 __pycache__
 
