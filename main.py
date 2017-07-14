@@ -37,7 +37,8 @@ env.reset()
 # print env.env.model.geom_rgba
 
 env.reset()
-for _ in range(200):
+env.render()
+for _ in range(10000):
     env.render()
     
     #body_pos = model.body_pos
@@ -47,16 +48,18 @@ for _ in range(200):
     # print target_pos
     env.step(env.action_space.sample()) # take a random actio
 
-print "End this episode"
-env.close()
-env = gym.make('Reacher-v2')
-env.reset()
-for _ in range(1000):
-    env.render()
+env.test1(123)
+env.test1(345)
+# print "End this episode"
+# env.close()
+# env = gym.make('Reacher-v2')
+# env.reset()
+# for _ in range(1000):
+#     env.render()
     
-    #body_pos = model.body_pos
-    # target_name = 'target'
-    # idx = model.body_names.index(six.b(target_name))
-    # target_pos = get_body_pos(env, target_name)
-    # print target_pos
-    env.step(env.action_space.sample()) # take a random actio
+#     #body_pos = model.body_pos
+#     # target_name = 'target'
+#     # idx = model.body_names.index(six.b(target_name))
+#     # target_pos = get_body_pos(env, target_name)
+#     # print target_pos
+#     env.step(env.action_space.sample()) # take a random actio
